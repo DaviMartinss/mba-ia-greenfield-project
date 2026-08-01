@@ -44,6 +44,7 @@ import { envValidationSchema } from './config/env.validation';
       }),
     }),
     AuthModule,
+    StorageModule
   ],
   controllers: [AppController],
   providers: [AppService],
