@@ -2,7 +2,7 @@
 scope_type: phase
 related_phases: [3]
 status: decided
-date: 2026-07-08
+date: 2026-08-01
 scope_description: "Backend foundation for video upload and processing: queue technology, 10GB direct-to-storage upload strategy, worker topology + FFmpeg integration, streaming/download delivery, unique public URL, video status lifecycle, S3/MinIO usage, and real-infra testing strategy."
 ---
 
