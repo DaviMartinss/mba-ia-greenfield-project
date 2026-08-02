@@ -1,4 +1,4 @@
-import { 
+import {
   Body,
   Controller,
   Get,
@@ -11,7 +11,7 @@ import {
 import {
   ApiBearerAuth,
   ApiOperation,
-  ApiParam
+  ApiParam,
   ApiResponse,
   ApiTags,
   getSchemaPath,

@@ -29,7 +29,7 @@ export class JwtAuthGuard implements CanActivate {
     const authHeader = request.headers?.authorization;
     const hasBearer = !!authHeader && authHeader.startsWith(BEARER_PREFIX);
 
-   if (isPublic) {
+    if (isPublic) {
       // Optional-auth: on a public route we never reject, but if a valid token
       // is present we attach the user so handlers can enable the owner view.
       if (hasBearer) {

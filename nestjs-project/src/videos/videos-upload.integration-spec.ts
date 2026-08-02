@@ -71,7 +71,7 @@ describe('Video upload flow (integration)', () => {
 
   async function createUserWithChannel(): Promise<string> {
     const user = await userRepo.save(
-           userRepo.create({
+      userRepo.create({
         email: `upload_${Date.now()}@example.com`,
         password: 'h',
       }),

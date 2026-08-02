@@ -16,8 +16,6 @@ import { VideoSweepService } from './video-sweep.service';
     QueueModule,
   ],
   controllers: [VideosController],
-  providers: [VideosService,
-    VideoSweepService
-  ],
+  providers: [VideosService, VideoSweepService],
 })
 export class VideosModule {}

@@ -59,6 +59,6 @@ import { VideoProcessor } from './video.processor';
     }),
     BullModule.registerQueue({ name: VIDEO_QUEUE }),
   ],
-   providers: [FfmpegService, VideoProcessor],
+  providers: [FfmpegService, VideoProcessor],
 })
 export class WorkerModule {}

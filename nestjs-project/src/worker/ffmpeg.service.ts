@@ -8,9 +8,7 @@ const execFileAsync = promisify(execFile);
 const MAX_BUFFER = 16 * 1024 * 1024;
 
 export type MediaErrorCode =
-  | 'PROBE_FAILED'
-  | 'THUMBNAIL_FAILED'
-  | 'UNSUPPORTED_MEDIA';
+  'PROBE_FAILED' | 'THUMBNAIL_FAILED' | 'UNSUPPORTED_MEDIA';
 
 // Classifies ffprobe/ffmpeg failures into the phase Error Catalog codes so the
 // processor can persist them on processing→failed (phase-03-videos Error Catalog).

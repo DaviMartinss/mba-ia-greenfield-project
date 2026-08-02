@@ -51,7 +51,7 @@ import { envValidationSchema } from './config/env.validation';
     AuthModule,
     QueueModule,
     StorageModule,
-    VideosModule
+    VideosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

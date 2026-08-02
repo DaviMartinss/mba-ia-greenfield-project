@@ -13,7 +13,7 @@ import { VideosModule } from './videos.module';
 const ALL_ENTITIES = [User, Channel, RefreshToken, VerificationToken, Video];
 
 describe('VideosModule', () => {
-   it('should compile with the videos controller, service and storage/channels deps', async () => {
+  it('should compile with the videos controller, service and storage/channels deps', async () => {
     const module = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({ isGlobal: true, load: [storageConfig] }),

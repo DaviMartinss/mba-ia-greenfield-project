@@ -29,7 +29,7 @@ function uniqueViolation(column: string): QueryFailedError {
 describe('VideosService', () => {
   let service: VideosService;
 
-   const videoRepo = {
+  const videoRepo = {
     insert: jest.fn(),
     findOne: jest.fn(),
     findOneByOrFail: jest.fn(),
@@ -99,7 +99,7 @@ describe('VideosService', () => {
       expect(storage.createMultipartUpload).not.toHaveBeenCalled();
     });
 
-  it('regenerates public_id and retries once on a 23505 collision', async () => {
+    it('regenerates public_id and retries once on a 23505 collision', async () => {
       channels.findByUserId.mockResolvedValue({ id: 'channel-1' });
       storage.createMultipartUpload.mockResolvedValue({ uploadId: 'upload-1' });
       storage.presignUploadPartUrls.mockResolvedValue([
@@ -141,7 +141,7 @@ describe('VideosService', () => {
         upload_id: null,
       });
 
-       const result = await service.completeUpload(
+      const result = await service.completeUpload(
         'user-1',
         'abcdefghijk',
         parts,
@@ -306,7 +306,7 @@ describe('VideosService', () => {
 
     it('presigns an inline playback URL for a ready video (playback expiry, no disposition)', async () => {
       videoRepo.findOne.mockResolvedValue({ ...readyVideo });
-       storage.presignGetUrl.mockResolvedValue(
+      storage.presignGetUrl.mockResolvedValue(
         'https://minio.local/play?signed',
       );
 

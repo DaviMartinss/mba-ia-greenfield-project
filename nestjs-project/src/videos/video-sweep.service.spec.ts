@@ -75,7 +75,7 @@ describe('VideoSweepService', () => {
       );
     });
 
-    it('queries PROCESSING rows past the ceiling, including never-started (NULL) ones' async () => {
+    it('queries PROCESSING rows past the ceiling, including never-started (NULL) ones', async () => {
       videos.find.mockResolvedValue([]);
 
       await service.failStuckProcessing();

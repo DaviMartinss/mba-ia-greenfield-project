@@ -63,7 +63,7 @@ describe('Database migrations (integration)', () => {
     await dataSource.destroy();
   });
 
-   it('should apply all migrations and create all five tables', async () => {
+  it('should apply all migrations and create all five tables', async () => {
     const ranMigrations = await dataSource.runMigrations();
 
     expect(ranMigrations).toHaveLength(3);
@@ -85,7 +85,7 @@ describe('Database migrations (integration)', () => {
     ]);
   });
 
-    it('should revert the last migration and remove the videos table', async () => {
+  it('should revert the last migration and remove the videos table', async () => {
     await dataSource.undoLastMigration();
 
     const result = await dataSource.query<{ table_name: string }[]>(

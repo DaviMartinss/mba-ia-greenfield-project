@@ -178,7 +178,9 @@ describe('videos-complete', () => {
       .expect(400);
 
     expect(res.body.error).toBe('VIDEO_UPLOAD_INCOMPLETE');
-    const video = await videoRepository.findOneByOrFail({ public_id: publicId });
+    const video = await videoRepository.findOneByOrFail({
+      public_id: publicId,
+    });
     expect(video.status).toBe('draft');
     const counts = await queue.getJobCounts();
     expect(counts.waiting).toBe(0);
@@ -214,7 +216,7 @@ describe('videos-complete', () => {
     const video = await videoRepository.findOneByOrFail({
       public_id: publicId,
     });
-    
+
     expect(video.status).toBe('failed');
 
     const list = await s3.send(

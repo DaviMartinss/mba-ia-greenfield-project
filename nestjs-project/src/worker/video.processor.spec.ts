@@ -1,6 +1,6 @@
 import { Job, UnrecoverableError } from 'bullmq';
 import { Video, VideoStatus } from '../videos/entities/video.entity';
-import { FfmpegService, MediaProcessingError } from './ffmpeg.service';
+import { MediaProcessingError } from './ffmpeg.service';
 import { VideoProcessor } from './video.processor';
 
 jest.mock('node:fs/promises', () => ({
@@ -52,7 +52,7 @@ describe('VideoProcessor', () => {
     processor = new VideoProcessor(
       videos as never,
       storage as unknown as never,
-      ffmpeg as unknown as FfmpegService,
+      ffmpeg,
       config as never,
     );
   });
@@ -120,7 +120,7 @@ describe('VideoProcessor', () => {
     storage.presignInternalGetUrl.mockRejectedValue(new Error('network blip'));
 
     await expect(
-      processor.process(makeJob({ attemptsMade: 0 } as Partial<Job>)),
+      processor.process(makeJob({ attemptsMade: 0 })),
     ).rejects.toThrow('network blip');
 
     const failedUpdate = videos.update.mock.calls.find(
@@ -134,7 +134,7 @@ describe('VideoProcessor', () => {
     storage.presignInternalGetUrl.mockRejectedValue(new Error('network down'));
 
     await expect(
-      processor.process(makeJob({ attemptsMade: 2 } as Partial<Job>)),
+      processor.process(makeJob({ attemptsMade: 2 })),
     ).rejects.toThrow('network down');
 
     expect(videos.update).toHaveBeenCalledWith(

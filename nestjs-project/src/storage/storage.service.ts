@@ -193,7 +193,7 @@ export class StorageService implements OnModuleInit {
       { expiresIn: opts.expiresIn },
     );
   }
-  
+
   async putObject(
     key: string,
     body: Buffer | Uint8Array | string,

@@ -1,9 +1,9 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateVideos1783526745739 implements MigrationInterface {
-    name = 'CreateVideos1783526745739';
+  name = 'CreateVideos1783526745739';
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
+  public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
       `CREATE TYPE "public"."video_status" AS ENUM('draft', 'processing', 'ready', 'failed')`,
     );

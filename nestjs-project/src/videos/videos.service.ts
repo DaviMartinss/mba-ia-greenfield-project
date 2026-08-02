@@ -7,7 +7,7 @@ import storageConfig from '../config/storage.config';
 import {
   VideoFileTooLargeException,
   VideoInvalidContentTypeException,
-   VideoNotFoundException,
+  VideoNotFoundException,
   VideoUploadIncompleteException,
   VideoUploadNotCompletableException,
   VideoUploadSizeMismatchException,
@@ -83,7 +83,7 @@ export class VideosService {
     @InjectRepository(Video) private readonly videos: Repository<Video>,
     private readonly storage: StorageService,
     private readonly channels: ChannelsService,
-    private readonly videoQueue: VideoQueueProducer,
+    private readonly producer: VideoQueueProducer,
     @Inject(storageConfig.KEY)
     private readonly config: ConfigType<typeof storageConfig>,
   ) {}
@@ -345,7 +345,7 @@ export class VideosService {
     }
     return video;
   }
-  
+
   // Inserts the draft row, regenerating public_id and retrying once on a
   // public_id unique violation (Postgres 23505 — TD-05).
   private async insertDraft(
