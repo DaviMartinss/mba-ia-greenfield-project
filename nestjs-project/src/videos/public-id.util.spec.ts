@@ -2,7 +2,7 @@ import {
   generatePublicId,
   PUBLIC_ID_ALPHABET,
   PUBLIC_ID_LENGTH,
-} from '../public-id.util';
+} from './public-id.util';
 
 describe('generatePublicId', () => {
   it('produces an 11-character id', () => {
