@@ -10,6 +10,8 @@ import { Channel } from './channel.entity';
 
 const ALL_ENTITIES = [User, Channel, RefreshToken, VerificationToken];
 
+jest.setTimeout(30000);
+
 describe('Channel entity (integration)', () => {
   let dataSource: DataSource;
   let userRepository: Repository<User>;

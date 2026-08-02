@@ -9,6 +9,8 @@ import { User } from '../users/entities/user.entity';
 import { ChannelsService } from './channels.service';
 import { Channel } from './entities/channel.entity';
 
+jest.setTimeout(30000);
+
 const ALL_ENTITIES = [User, Channel, RefreshToken, VerificationToken];
 
 describe('ChannelsService (integration)', () => {

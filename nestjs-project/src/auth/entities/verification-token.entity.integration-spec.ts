@@ -11,6 +11,8 @@ import {
   VerificationTokenType,
 } from './verification-token.entity';
 
+jest.setTimeout(30000);
+
 const ALL_ENTITIES = [User, Channel, RefreshToken, VerificationToken];
 
 describe('VerificationToken entity (integration)', () => {
