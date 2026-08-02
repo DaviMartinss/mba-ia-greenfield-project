@@ -26,6 +26,7 @@ import {
   emptyBucket,
   waitForStatus,
 } from './helpers/video-pipeline.helpers';
+import { MailService } from '../src/mail/mail.service';
 
 const TINY_MP4 = readFileSync(join(__dirname, 'fixtures', 'tiny.mp4'));
 
@@ -120,7 +121,8 @@ describe('videos (full pipeline e2e)', () => {
 
   async function registerConfirmAndLogin(email: string): Promise<string> {
     const authService = app.get(AuthService);
-    const mailService = (authService as any).mailService;
+    const mailService = (authService as unknown as { mailService: MailService })
+      .mailService;
     let confirmationToken = '';
     jest
       .spyOn(mailService, 'sendConfirmationEmail')

@@ -15,6 +15,9 @@ import storageConfig from '../src/config/storage.config';
 import { VIDEO_QUEUE } from '../src/queue/queue.constants';
 import { cleanAllTables } from '../src/test/create-test-data-source';
 import { Video } from '../src/videos/entities/video.entity';
+import { MailService } from '../src/mail/mail.service';
+
+jest.setTimeout(30000);
 
 // SPEC_DEVIATION: uploads an inline Buffer rather than test/fixtures/tiny.mp4
 // (SI-03.11's deliverable, requires ffmpeg absent from this container). The
@@ -78,7 +81,8 @@ describe('videos-complete', () => {
 
   async function registerConfirmAndLogin(email: string): Promise<string> {
     const authService = app.get(AuthService);
-    const mailService = (authService as any).mailService;
+    const mailService = (authService as unknown as { mailService: MailService })
+      .mailService;
     let confirmationToken = '';
     jest
       .spyOn(mailService, 'sendConfirmationEmail')

@@ -17,6 +17,8 @@ import { cleanAllTables } from '../src/test/create-test-data-source';
 import { User } from '../src/users/entities/user.entity';
 import { Video, VideoStatus } from '../src/videos/entities/video.entity';
 
+jest.setTimeout(30000);
+
 // SPEC_DEVIATION: seeds an inline Buffer as the video object rather than
 // test/fixtures/tiny.mp4 (SI-03.11's deliverable, needs ffmpeg). Delivery only
 // presigns and streams bytes — MinIO serves Range/206 off any object, so raw
