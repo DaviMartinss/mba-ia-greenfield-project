@@ -35,6 +35,13 @@ describe('Database migrations (integration)', () => {
 
     await dataSource.initialize();
 
+    // Drop sequentially, not via Promise.all: concurrent DROP TABLE CASCADE on
+    // FK-interdependent tables acquires locks in conflicting orders and
+    // deadlocks (flaky under the full --runInBand suite).
+    for (const table of [...MANAGED_TABLES, 'migrations']) {
+      await dataSource.query(`DROP TABLE IF EXISTS "${table}" CASCADE`);
+    }
+
     await Promise.all([
       ...MANAGED_TABLES.map((table) =>
         dataSource.query(`DROP TABLE IF EXISTS "${table}" CASCADE`),
