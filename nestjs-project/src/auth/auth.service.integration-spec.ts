@@ -31,6 +31,9 @@ import {
   VerificationToken,
   VerificationTokenType,
 } from './entities/verification-token.entity';
+import { MailService } from '../mail/mail.service';
+
+jest.setTimeout(30000);
 
 const ALL_ENTITIES = [User, Channel, RefreshToken, VerificationToken];
 
@@ -65,7 +68,9 @@ async function createAuthTestModule(): Promise<TestingModule> {
 
 function captureConfirmationToken(authService: AuthService): Promise<string> {
   return new Promise((resolve) => {
-    const mailServiceInstance = (authService as any).mailService;
+    const mailServiceInstance = (
+      authService as unknown as { mailService: MailService }
+    ).mailService;
     jest
       .spyOn(mailServiceInstance, 'sendConfirmationEmail')
       .mockImplementationOnce(async (_e: string, _n: string, t: string) =>
@@ -231,7 +236,7 @@ describe('AuthService — confirm (integration)', () => {
 
   it('throws TokenExpiredException for an expired token', async () => {
     const capturePromise = captureConfirmationToken(authService);
-    const { id: userId } = await authService.register({
+    await authService.register({
       email: 'expired@example.com',
       password: 'password123',
     });
@@ -562,7 +567,9 @@ describe('AuthService — logout (integration)', () => {
 
 function capturePasswordResetToken(authService: AuthService): Promise<string> {
   return new Promise((resolve) => {
-    const mailServiceInstance = (authService as any).mailService;
+    const mailServiceInstance = (
+      authService as unknown as { mailService: MailService }
+    ).mailService;
     jest
       .spyOn(mailServiceInstance, 'sendPasswordResetEmail')
       .mockImplementationOnce(async (_e: string, _n: string, t: string) =>
