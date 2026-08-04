@@ -13,6 +13,8 @@ docker compose ps   # all services must show status "running"
 Then verify each infrastructure service is actually ready to accept connections — not just running:
 
 - **PostgreSQL:** `docker compose exec db pg_isready -U streamtube` — expect `accepting connections`
+- **MinIO:** `curl -f http://localhost:9000/minio/health/live` (from the host) — expect HTTP 200
+- **Redis:** `docker compose exec redis redis-cli ping` — expect `PONG`
 
 Only start the NestJS dev server (`npm run start:dev`) when the user **explicitly** asks to run the application — never as part of "start the environment".
 
@@ -34,6 +36,10 @@ docker compose exec nestjs-api npm run start:dev
 Services:
 - `nestjs-api` — NestJS API, port `3000`
 - `db` — PostgreSQL 17, port `5432`, database `streamtube`, user/password `streamtube`
+- `mailpit` — SMTP capture, ports `1025` (SMTP) / `8025` (UI)
+- `minio` — S3-compatible object storage, ports `9000` (API) / `9001` (console), credentials `minioadmin`/`minioadmin`, bucket auto-created in dev (`STORAGE_AUTO_CREATE_BUCKET=true`)
+- `redis` — BullMQ broker (AOF persistence), port `6379`
+- `video-worker` — video processing worker (same codebase, ffmpeg-enabled image via `Dockerfile.worker`, no HTTP listener); idles by default — tests and the smoke script control when it consumes the queue
 
 All verification and teardown commands run on the **host machine**:
 
@@ -90,6 +96,14 @@ Integration and e2e suites share a single test database. They **must** be run wi
 docker compose exec nestjs-api npm test -- --runInBand
 docker compose exec nestjs-api npm run test:e2e   # already configured
 ```
+
+**Worker integration suites run inside the `video-worker` container** — `src/worker/*.integration-spec.ts` shells out to real `ffprobe`/`ffmpeg`, which only exist in the worker image. The API jest config ignores those files (`testPathIgnorePatterns`); they have their own config (`test/jest-worker.json`):
+
+```bash
+docker compose exec video-worker npm run test:worker -- --forceExit
+```
+
+Worker *unit* specs (`src/worker/*.spec.ts`, ffmpeg mocked) still run with the regular API suite.
 
 Parallel execution causes FK violations, deadlocks, and cross-suite contamination because suites truncate or seed shared tables concurrently.
 
@@ -159,3 +173,30 @@ NestJS with standard module structure. Source lives in `src/`, compiled output i
 ## REST Conventions
 
 This is a RESTful API. All endpoints must follow standard REST conventions — correct HTTP methods, proper status codes, plural resource nouns, and consistent URL structure. Details are enforced via rules on controller files.
+
+## Videos Module (Fase 03)
+
+Video upload and processing pipeline. Plan and per-SI history: `docs/phases/phase-03-videos/`.
+
+## Videos Module (Fase 03)
+
+Pipeline de upload e processamento de vídeos. Plano e histórico por SI: `docs/phases/phase-03-videos/`.
+
+**Módulos:**
+- `src/videos/` — `VideosController`/`VideosService` (initiate/complete/consulta/stream/download), entidade `Video` (tabela `videos`, FK `channel_id`, enum `video_status`: `draft | processing | ready | failed`), `public-id.util.ts` (id de 11 caracteres em base64url, sem dependências externas), `video-sweep.service.ts` (sweep via `@Cron`: aborta o multipart de drafts que ultrapassam `UPLOAD_STALE_TTL_HOURS` e derruba `processing` travado para `failed` após `PROCESSING_STUCK_CEILING_HOURS`)
+- `src/storage/` — `StorageModule`/`StorageService`: dois clients S3 (`STORAGE_ENDPOINT` interno, usado nas operações; `STORAGE_PUBLIC_ENDPOINT` exclusivo para presign, já que o SigV4 assina o Host), multipart, presigned GET (inline/attachment) e ensure-bucket executado no boot
+- `src/queue/` — `QueueModule` (BullMQ via `@nestjs/bullmq`) e `VideoQueueProducer` (fila `video-processing`, com `jobId = videoId` para enqueue idempotente e retries com backoff exponencial)
+- `src/worker/` — `WorkerModule` (application context standalone, sem HTTP; entrypoint em `src/worker.ts`), `FfmpegService` (extração de metadados via ffprobe e geração de thumbnail via `node:child_process`, com input seekable através de URL presigned), `VideoProcessor` (`WorkerHost`: faz as transições CAS `processing → ready/failed`, gravando `error_code` em caso de falha)
+
+**Endpoints** (contratos completos em `docs/phases/phase-03-videos/phase-03-videos.md` → API Contracts, e também no `openapi.json`):
+- `POST /videos` (autenticado) — pré-cadastra o vídeo como `draft` e devolve as URLs presigned de multipart (arquivos de até 10 GiB; os bytes nunca passam pela API)
+- `POST /videos/:publicId/complete` (autenticado, apenas dono) — fecha o multipart, valida o tamanho via HeadObject, faz o CAS `draft→processing` e enfileira `video.process` (operação idempotente)
+- `GET /videos/:publicId` (público, com optional-auth) — retorna metadados e status; vídeos não-`ready` só são visíveis ao dono (demais chamadores recebem 404)
+- `GET /videos/:publicId/stream` (público) — responde `302` apontando para presigned GET inline (Range/206 servido diretamente pelo storage)
+- `GET /videos/:publicId/download` (público) — responde `302` apontando para presigned GET com `content-disposition: attachment`
+
+**Env:** chaves `STORAGE_*`, `UPLOAD_*`, `PLAYBACK_URL_EXPIRES_IN`, `DOWNLOAD_URL_EXPIRES_IN`, `REDIS_*`, `VIDEO_PROCESSING_ATTEMPTS`, `PROCESSING_STUCK_CEILING_HOURS` — consulte o `.env.example` (validação via Joi em `src/config/env.validation.ts`; namespaces `storage.config.ts` / `queue.config.ts`).
+
+**Worker (dev):** rode `npm run start:worker:dev` (com watch) ou `node dist/worker` dentro do container `video-worker`. Por padrão o container fica ocioso; o script `scripts/smoke-video-pipeline.sh` exercita o fluxo completo cross-container (upload real → worker consumindo → status `ready`).
+
+**Fixture de teste:** `test/fixtures/tiny.mp4` (menos de 100KB, gerada via ffmpeg com `testsrc`; detalhes em `test/fixtures/README.md`) — exercita o caminho real de multipart (a última parte fica isenta do mínimo de 5 MiB). Os helpers do pipeline estão em `test/helpers/video-pipeline.helpers.ts` (`emptyBucket`, `drainQueue`, `waitForStatus` orientado a eventos).
